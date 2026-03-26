@@ -1,97 +1,99 @@
 #include <iostream>
+#include <string>
 using namespace std;
 
-class TicketQueue {
-    int* arr;
+class PrintQueue {
+    string* arr;
     int frontIndex;
     int rearIndex;
     int count;
     int capacity;
 
 public:
-    TicketQueue(int size) {
+    PrintQueue(int size) {
         capacity = size;
-        arr = new int[capacity];
+        arr = new string[capacity];
         frontIndex = 0;
         rearIndex = -1;
         count = 0;
     }
 
-    ~TicketQueue() {
+    ~PrintQueue() {
         delete[] arr;
     }
 
-    void enqueue(int ticket_id) {
+    void enqueue(string document_name) {
         if (count == capacity) {
-            cout << "Ticket queue is full.\n";
+            cout << "Print queue is full.\n";
             return;
         }
         rearIndex = (rearIndex + 1) % capacity;
-        arr[rearIndex] = ticket_id;
+        arr[rearIndex] = document_name;
         count++;
-        cout << "Ticket " << ticket_id << " added to queue.\n";
+        cout << "\"" << document_name << "\" added to print queue.\n";
     }
 
     void dequeue() {
         if (count == 0) {
-            cout << "No pending tickets.\n";
+            cout << "No documents in queue.\n";
             return;
         }
-        int ticket = arr[frontIndex];
+        string doc = arr[frontIndex];
         frontIndex = (frontIndex + 1) % capacity;
         count--;
-        cout << "Ticket " << ticket << " resolved and removed from queue.\n";
+        cout << "Printing: \"" << doc << "\"\n";
     }
 
     void front() const {
         if (count == 0) {
-            cout << "No pending tickets.\n";
+            cout << "No documents in queue.\n";
             return;
         }
-        cout << "Next ticket to resolve: " << arr[frontIndex] << "\n";
+        cout << "Next document to print: \"" << arr[frontIndex] << "\"\n";
     }
 
     void display() const {
         if (count == 0) {
-            cout << "No pending tickets.\n";
+            cout << "No pending print jobs.\n";
             return;
         }
-        cout << "Pending tickets (front to rear): ";
+        cout << "Pending print jobs (front to rear):\n";
         for (int i = 0; i < count; i++) {
-            cout << arr[(frontIndex + i) % capacity] << " ";
+            cout << "  " << (i + 1) << ". " << arr[(frontIndex + i) % capacity] << "\n";
         }
-        cout << "\n";
     }
 };
 
 int main() {
     int size;
-    cout << "Enter max number of tickets in queue: ";
+    cout << "Enter max print queue size: ";
     cin >> size;
+    cin.ignore();
 
-    TicketQueue tq(size);
+    PrintQueue pq(size);
     int choice;
 
     do {
-        cout << "\n1. Add Ticket\n2. Resolve Ticket\n3. View Next Ticket\n4. Display All Tickets\n0. Exit\nChoice: ";
+        cout << "\n1. Add Print Job\n2. Print Document\n3. View Next Document\n4. Display Queue\n0. Exit\nChoice: ";
         cin >> choice;
+        cin.ignore();
 
         switch (choice) {
         case 1: {
-            int id;
-            cout << "Enter 4-digit ticket ID: ";
-            cin >> id;
-            tq.enqueue(id);
+            string name;
+            cout << "Enter document name: ";
+            getline(cin, name);
+            pq.enqueue(name);
             break;
         }
         case 2:
-            tq.dequeue();
+            pq.dequeue();
             break;
         case 3:
-            tq.front();
+            pq.front();
             break;
         case 4:
-            tq.display();
+            pq.display();
             break;
         case 0:
             cout << "Exiting.\n";

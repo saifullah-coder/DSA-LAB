@@ -1,98 +1,113 @@
 #include <iostream>
-#include <string>
 using namespace std;
 
 template <typename T>
-class AbstractStack {
-public:
-    virtual void push(T value) = 0;
-    virtual T pop() = 0;
-    virtual T top() const = 0;
-    virtual bool isEmpty() const = 0;
-    virtual bool isFull() const = 0;
-    virtual ~AbstractStack() {}
-};
-
-template <typename T>
-class myStack : public AbstractStack<T> {
-private:
+class Stack {
     T* arr;
-    T* minArr;
-    int maxSize;
-    int topIndex;
-    int minTop;
+    int top;
+    int capacity;
 
 public:
-    myStack(int size) {
-        maxSize = size;
-        arr = new T[maxSize];
-        minArr = new T[maxSize];
-        topIndex = -1;
-        minTop = -1;
+    Stack(int size) {
+        capacity = size;
+        arr = new T[capacity];
+        top = -1;
     }
 
-    ~myStack() {
+    ~Stack() {
         delete[] arr;
-        delete[] minArr;
     }
 
-    void push(T value) {
-        if (isFull()) {
-            cout << "Stack is full. Cannot push.\n";
+    void push(T val) {
+        if (top == capacity - 1) {
+            cout << "Stack overflow.\n";
             return;
         }
-        arr[++topIndex] = value;
-        if (minTop == -1 || value <= minArr[minTop]) {
-            minArr[++minTop] = value;
-        }
-        cout << value << " pushed onto the stack.\n";
+        arr[++top] = val;
     }
 
     T pop() {
-        if (isEmpty()) {
-            cout << "Stack is empty. Cannot pop.\n";
+        if (top == -1) {
+            cout << "Stack underflow.\n";
             return T();
         }
-        T val = arr[topIndex--];
-        if (val == minArr[minTop]) {
-            minTop--;
-        }
-        return val;
+        return arr[top--];
     }
 
-    T top() const {
-        if (isEmpty()) {
+    T peek() const {
+        if (top == -1) {
             cout << "Stack is empty.\n";
             return T();
         }
-        return arr[topIndex];
+        return arr[top];
     }
 
     bool isEmpty() const {
-        return topIndex == -1;
+        return top == -1;
     }
 
-    bool isFull() const {
-        return topIndex == maxSize - 1;
+    int size() const {
+        return top + 1;
     }
 
-    T getMin() const {
-        if (minTop == -1) {
-            cout << "Stack is empty. No minimum.\n";
+    T getAt(int i) const {
+        return arr[i];
+    }
+};
+
+template <typename T>
+class QueueUsingStacks {
+    Stack<T> s1;
+    Stack<T> s2;
+
+    void transfer() {
+        if (s2.isEmpty()) {
+            while (!s1.isEmpty()) {
+                s2.push(s1.pop());
+            }
+        }
+    }
+
+public:
+    QueueUsingStacks(int size) : s1(size), s2(size) {}
+
+    void enqueue(T val) {
+        s1.push(val);
+    }
+
+    T dequeue() {
+        transfer();
+        if (s2.isEmpty()) {
+            cout << "Queue is empty.\n";
             return T();
         }
-        return minArr[minTop];
+        return s2.pop();
     }
 
-    void display() const {
+    T front() {
+        transfer();
+        if (s2.isEmpty()) {
+            cout << "Queue is empty.\n";
+            return T();
+        }
+        return s2.peek();
+    }
+
+    bool isEmpty() {
+        return s1.isEmpty() && s2.isEmpty();
+    }
+
+    void display() {
         if (isEmpty()) {
-            cout << "Stack is empty.\n";
+            cout << "Queue is empty.\n";
             return;
         }
-        cout << "Stack (top to bottom): ";
-        for (int i = topIndex; i >= 0; i--) {
-            cout << arr[i];
-            if (i != 0) cout << " -> ";
+        cout << "Queue (front to rear): ";
+        for (int i = 0; i < s2.size(); i++) {
+            cout << s2.getAt(i) << " ";
+        }
+        for (int i = s1.size() - 1; i >= 0; i--) {
+            cout << s1.getAt(i) << " ";
         }
         cout << "\n";
     }
@@ -100,59 +115,38 @@ public:
 
 int main() {
     int size;
-    cout << "Enter the maximum size of the stack: ";
+    cout << "Enter max queue size: ";
     cin >> size;
 
-    myStack<int> s(size);
+    QueueUsingStacks<int> q(size);
     int choice, value;
 
     do {
-        cout << "\n--- Enhanced Stack Menu ---\n";
-        cout << "1. Push element\n";
-        cout << "2. Pop element\n";
-        cout << "3. Show top element\n";
-        cout << "4. Check if stack is empty\n";
-        cout << "5. Check if stack is full\n";
-        cout << "6. Display stack elements\n";
-        cout << "7. Show minimum element\n";
-        cout << "8. Exit\n";
-        cout << "Enter your choice: ";
+        cout << "\n1. Enqueue\n2. Dequeue\n3. Front\n4. Display\n0. Exit\nChoice: ";
         cin >> choice;
 
         switch (choice) {
         case 1:
-            cout << "Enter value to push: ";
+            cout << "Enter value: ";
             cin >> value;
-            s.push(value);
+            q.enqueue(value);
             break;
         case 2:
-            if (!s.isEmpty())
-                cout << "Popped: " << s.pop() << "\n";
+            cout << "Dequeued: " << q.dequeue() << "\n";
             break;
         case 3:
-            if (!s.isEmpty())
-                cout << "Top element: " << s.top() << "\n";
+            cout << "Front: " << q.front() << "\n";
             break;
         case 4:
-            cout << (s.isEmpty() ? "Stack is empty.\n" : "Stack is not empty.\n");
+            q.display();
             break;
-        case 5:
-            cout << (s.isFull() ? "Stack is full.\n" : "Stack is not full.\n");
-            break;
-        case 6:
-            s.display();
-            break;
-        case 7:
-            if (!s.isEmpty())
-                cout << "Minimum element: " << s.getMin() << "\n";
-            break;
-        case 8:
-            cout << "Exiting...\n";
+        case 0:
+            cout << "Exiting.\n";
             break;
         default:
             cout << "Invalid choice.\n";
         }
-    } while (choice != 8);
+    } while (choice != 0);
 
     return 0;
 }
