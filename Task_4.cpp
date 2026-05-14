@@ -1,105 +1,30 @@
 #include <iostream>
 using namespace std;
 
-class TicketQueue {
-    int* arr;
-    int frontIndex;
-    int rearIndex;
-    int count;
-    int capacity;
-
-public:
-    TicketQueue(int size) {
-        capacity = size;
-        arr = new int[capacity];
-        frontIndex = 0;
-        rearIndex = -1;
-        count = 0;
-    }
-
-    ~TicketQueue() {
-        delete[] arr;
-    }
-
-    void enqueue(int ticket_id) {
-        if (count == capacity) {
-            cout << "Ticket queue is full.\n";
-            return;
-        }
-        rearIndex = (rearIndex + 1) % capacity;
-        arr[rearIndex] = ticket_id;
-        count++;
-        cout << "Ticket " << ticket_id << " added to queue.\n";
-    }
-
-    void dequeue() {
-        if (count == 0) {
-            cout << "No pending tickets.\n";
-            return;
-        }
-        int ticket = arr[frontIndex];
-        frontIndex = (frontIndex + 1) % capacity;
-        count--;
-        cout << "Ticket " << ticket << " resolved and removed from queue.\n";
-    }
-
-    void front() const {
-        if (count == 0) {
-            cout << "No pending tickets.\n";
-            return;
-        }
-        cout << "Next ticket to resolve: " << arr[frontIndex] << "\n";
-    }
-
-    void display() const {
-        if (count == 0) {
-            cout << "No pending tickets.\n";
-            return;
-        }
-        cout << "Pending tickets (front to rear): ";
-        for (int i = 0; i < count; i++) {
-            cout << arr[(frontIndex + i) % capacity] << " ";
-        }
-        cout << "\n";
-    }
+struct Node {
+    int data;
+    Node* next;
+    Node(int val) : data(val), next(nullptr) {}
 };
 
+void printList(Node* head) {
+    if (head == nullptr) {
+        cout << endl;
+        return;
+    }
+    cout << head->data << " ";
+    printList(head->next);
+}
+
 int main() {
-    int size;
-    cout << "Enter max number of tickets in queue: ";
-    cin >> size;
+    Node* head = new Node(1);
+    head->next = new Node(2);
+    head->next->next = new Node(3);
+    head->next->next->next = new Node(4);
+    head->next->next->next->next = new Node(5);
 
-    TicketQueue tq(size);
-    int choice;
-
-    do {
-        cout << "\n1. Add Ticket\n2. Resolve Ticket\n3. View Next Ticket\n4. Display All Tickets\n0. Exit\nChoice: ";
-        cin >> choice;
-
-        switch (choice) {
-        case 1: {
-            int id;
-            cout << "Enter 4-digit ticket ID: ";
-            cin >> id;
-            tq.enqueue(id);
-            break;
-        }
-        case 2:
-            tq.dequeue();
-            break;
-        case 3:
-            tq.front();
-            break;
-        case 4:
-            tq.display();
-            break;
-        case 0:
-            cout << "Exiting.\n";
-            break;
-        default:
-            cout << "Invalid choice.\n";
-        }
-    } while (choice != 0);
+    cout << "Linked List: ";
+    printList(head);
 
     return 0;
 }
