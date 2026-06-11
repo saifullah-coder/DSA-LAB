@@ -1,53 +1,86 @@
 #include <iostream>
-#include <string>
 using namespace std;
 
-template <typename T>
-void printArray(T arr[], int size = 5) {
-    for (int i = 0; i < size; i++) {
-        cout << arr[i] << " ";
-    }
-    cout << endl;
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+    Node(int val) : data(val), left(NULL), right(NULL) {}
+};
+
+// Insert function
+Node* insert(Node* root, int val) {
+    if (!root) return new Node(val);
+    if (val < root->data) root->left = insert(root->left, val);
+    else root->right = insert(root->right, val);
+    return root;
 }
 
+// Inorder traversal
+void inorder(Node* root) {
+    if (!root) return;
+    inorder(root->left);
+    cout << root->data << " ";
+    inorder(root->right);
+}
 
-template <typename T>
-void selectionSort(T arr[], int size = 5) {
-    for (int i = 0; i < size - 1; i++) {
-        int SmallSub = i;
+// Find minimum node (used in deletion)
+Node* findMin(Node* root) {
+    while (root->left) root = root->left;
+    return root;
+}
 
-        for (int j = i + 1; j < size; j++) {
-            if (arr[j] < arr[SmallSub]) {
-                SmallSub = j;
-            }
+// Delete function
+Node* deleteNode(Node* root, int key) {
+    if (!root) return root;
+    if (key < root->data) root->left = deleteNode(root->left, key);
+    else if (key > root->data) root->right = deleteNode(root->right, key);
+    else {
+        // Case 1: No child
+        if (!root->left && !root->right) {
+            delete root;
+            return NULL;
         }
-
-       
-        if (SmallSub != i) {
-            T temp = arr[i];
-            arr[i] = arr[SmallSub];
-            arr[SmallSub] = temp;
+        // Case 2: One child
+        else if (!root->left) {
+            Node* temp = root->right;
+            delete root;
+            return temp;
+        }
+        else if (!root->right) {
+            Node* temp = root->left;
+            delete root;
+            return temp;
+        }
+        // Case 3: Two children
+        else {
+            Node* temp = findMin(root->right);
+            root->data = temp->data;
+            root->right = deleteNode(root->right, temp->data);
         }
     }
+    return root;
 }
 
 int main() {
+    Node* root = NULL;
 
-    
-    int intArray[5] = { 64, 25, 12, 22, 11 };
-    cout << "Original integer array: ";
-    printArray(intArray, 5);
-    selectionSort(intArray, 5);
-    cout << "Sorted integer array: ";
-    printArray(intArray, 5);
+    // Insert values
+    int values[] = { 50, 30, 70, 20, 40, 60, 80 };
+    for (int val : values) {
+        root = insert(root, val);
+    }
 
-  
-    string stringArray[4] = { "apple", "orange", "banana", "grape" };
-    cout << "\nOriginal string array: ";
-    printArray(stringArray, 4);
-    selectionSort(stringArray, 4);
-    cout << "Sorted string array: ";
-    printArray(stringArray, 4);
+    cout << "After Insertion (In-order): ";
+    inorder(root);
+    cout << endl;
+
+    // Delete value
+    root = deleteNode(root, 70);
+
+    cout << "After Deletion (In-order): ";
+    inorder(root);
+    cout << endl;
 
     return 0;
 }
